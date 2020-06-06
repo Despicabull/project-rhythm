@@ -1,21 +1,38 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class BlocksMovement : MonoBehaviour
 {
-    private float speed;
+    public bool canBePressed;
+    public bool missed;
 
     // Start is called before the first frame update
     void Start()
     {
-        speed = GameSettings.speed;
+        canBePressed = false;
+        missed = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        Vector3 position = new Vector3(transform.position.x, transform.position.y - speed, transform.position.z);
-        transform.position = Vector3.Lerp(transform.position, position, 0.1f);
+        transform.position -= new Vector3(0, (GameSettings.currentMap.mapSpeed * GameSettings.speed) / 60f, 0);
+        // transform.position -= new Vector3(0, (GameSettings.currentMap.mapSpeed * GameSettings.speed) / 60f, 0);
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Activator")
+        {
+            canBePressed = true;
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.tag == "Activator")
+        {
+            canBePressed = false;
+            missed = true;
+        }
     }
 }

@@ -1,25 +1,27 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
 public class MapHandler : MonoBehaviour
 {
-    private string path;
+    private string path;    
     private List<Map> maps = new List<Map>();
+
+    void Awake()
+    {
+        DontDestroyOnLoad(this);
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         path = Application.dataPath + "\\Maps\\";
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
         GetMap(path);
         ListMap();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     void GetMap(string path)
@@ -36,7 +38,14 @@ public class MapHandler : MonoBehaviour
     {
         StreamReader reader = new StreamReader(filename);
         string mapName = Path.GetFileNameWithoutExtension(filename);
-        Map map = new Map(mapName, 5f);
+        float mapSpeed = float.Parse(reader.ReadLine());
+        int mapBlocks = 0;
+        while (reader.Peek() > -1) // Reads every line
+        {
+            reader.Read();
+            mapBlocks++;
+        }
+        Map map = new Map(mapName, mapSpeed, mapBlocks);
         return map;
     }
 
@@ -44,7 +53,12 @@ public class MapHandler : MonoBehaviour
     {
         for (int i = 0; i < maps.Count; i++)
         {
-            Debug.Log(maps[i].mapName);
+            Debug.Log(maps[i].mapBlocks);
         }
+    }
+
+    void LoadMap(Map map)
+    {
+        GameSettings.currentMap = map;
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class KeyClickHandler : MonoBehaviour
@@ -17,10 +15,10 @@ public class KeyClickHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        CheckInput();
+        CheckKeyboardInput();
     }
 
-    void CheckInput()
+    void CheckKeyboardInput()
     {
         if (Input.GetKeyDown(keyCode))
         {

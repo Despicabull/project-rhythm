@@ -1,15 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class GameSettings
+﻿public class GameSettings
 {
-    public static float speed = 5f;
-    public static Dictionary<string, KeyCode> keys = new Dictionary<string, KeyCode>()
-    {
-        {"D", KeyCode.D},
-        {"F", KeyCode.F},
-        {"J", KeyCode.J},
-        {"K", KeyCode.K},
-    };
+    public static Map currentMap = new Map("Default Map", 67.5f, 300);
+    public static float speed = 1f;
+    public static int scorePerBlock = 100;
+    public static float scoreMultiplier = 1f;
 }
