@@ -3,8 +3,8 @@ using UnityEngine.UI;
 
 public class KeyClickHandler : MonoBehaviour
 {
-    private Button button;
     public KeyCode keyCode;
+    private Button button;
 
     // Start is called before the first frame update
     void Start()

@@ -1,57 +1,133 @@
-﻿using System.Collections;
+﻿using System.Diagnostics;
 using TMPro;
 using UnityEngine;
 
+public enum Combo
+{
+    Miss,
+    Bad,
+    Good,
+    Great,
+    Excellent,
+}
+
 public class GameplayHandler : MonoBehaviour
 {
-    public GameObject blockPrefab;
+    public int missHit = 0;
+    public int badHit = 0;
+    public int goodHit = 0;
+    public int greatHit = 0;
+    public int excellentHit = 0;
+    public int currentScore = 0;
     public GameObject blockSpawn;
     public GameObject keyThreshold;
-    public TextMeshProUGUI scoreText;
-    public AudioSource audioSource;
+    public GameObject gameplayPanel;
     public KeyPanel keyPanel;
-    public int missHit;
-    public int badHit;
-    public int goodHit;
-    public int greatHit;
-    public int excellentHit;
-    private const float spawnRateConstant = 4f;
-    private int currentScore;
-    private float spawnRate;
-    private bool isSpawning;
+    public ResultHandler resultHandler;
+    public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI comboText;
+    public TextMeshProUGUI hitText;
+    private AudioProcessor processor;
+    private AudioSource audioSource;
+    private int currentBeat = 0;
+    private int blocksHit = 0;
 
     // Start is called before the first frame update
     void Start()
     {
-        spawnRate = GameSettings.speed / ((GameSettings.currentMap.mapSpeed / 60f) * spawnRateConstant);
-        // spawnRate = speed / ((mapSpeed / 60f) * spawnRateConstant);
-        isSpawning = false;
+        processor = GetComponent<AudioProcessor>();
+        processor.onBeat.AddListener(OnBeat);
+
+        // Loads clip from the GameManager
+        GameManager gameManager = FindObjectOfType<GameManager>();
+        audioSource = GetComponent<AudioSource>();
+        audioSource.clip = gameManager.audioClip;
+        audioSource.Play();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!isSpawning)
+        if (!audioSource.isPlaying)
         {
-            isSpawning = true;
-            StartCoroutine(SpawnBlock(spawnRate));
+            gameplayPanel.SetActive(false);
+            resultHandler.CalculateResult();
         }
     }
 
-    IEnumerator SpawnBlock(float seconds)
+    void OnBeat()
     {
-        yield return new WaitForSeconds(seconds);
-        int random = Random.Range(0, keyPanel.keys.Length);
-        GameObject block = Instantiate(blockPrefab, keyPanel.keys[random].gameObject.transform);
-        keyPanel.keys[random].blocks.Add(block);
-        Vector3 position = new Vector3(keyPanel.keys[random].transform.position.x, blockSpawn.transform.position.y, keyPanel.keys[random].transform.position.z);
-        block.transform.position = position;
-        isSpawning = false;
+        currentBeat++;
+        if (currentBeat > 2)
+        {
+            int[,] patterns = new int[6, 2] { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 3 } };
+            SpawnBlock(patterns);
+            currentBeat = 0;
+        }
+    }
+
+    void SpawnBlock(int[,] patterns)
+    {
+        int len = patterns.GetLength(1);
+        int r = Random.Range(0, 5);
+        for (int i = 0; i < len; i++)
+        {
+            int x = patterns[r, i];
+            GameObject block = ObjectPooler.instance.GetObject();
+            if (block == null) { return; }
+            block.SetActive(true);
+            Vector3 position = new Vector3(keyPanel.keys[x].transform.position.x, blockSpawn.transform.position.y, keyPanel.keys[x].transform.position.z);
+            block.transform.position = position;
+            keyPanel.keys[x].blocks.Add(block);
+        }
+    }
+
+    public void DisplayCombo(Combo combo)
+    {
+        switch (combo) 
+        {
+            case Combo.Miss: // Resets the block hit value
+                missHit++;
+                comboText.text = "Miss";
+                ResetHit();
+                break;
+            case Combo.Bad:
+                badHit++;
+                comboText.text = "Bad";
+                break;
+            case Combo.Good:
+                goodHit++;
+                comboText.text = "Good";
+                break;
+            case Combo.Great:
+                greatHit++;
+                comboText.text = "Great";
+                break;
+            case Combo.Excellent:
+                excellentHit++;
+                comboText.text = "Excellent";
+                break;
+        };
+    }
+
+    public void ResetHit()
+    {
+        blocksHit = 0;
+        hitText.text = blocksHit.ToString();
+    }
+
+    public void IncreaseHit()
+    {
+        blocksHit++;
+        hitText.text = blocksHit.ToString();
     }
 
     public void IncreaseScore(int value)
     {
         currentScore += value;
         scoreText.text = currentScore.ToString("D7");
+        IncreaseHit();
     }
+
+    
 }
