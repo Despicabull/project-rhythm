@@ -1,30 +1,26 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class SceneHandler : MonoBehaviour
 {
+    private Animator animator;
+
+    private int levelToLoad;
+
     // Start is called before the first frame update
     void Start()
     {
-        DontDestroyOnLoad(this);
+        animator = GetComponent<Animator>();
     }
 
-    public  void LoadLevel(int sceneIndex)
+    public void LoadLevel(int sceneIndex)
     {
-        StartCoroutine(LoadAsynchronously(sceneIndex));
+        levelToLoad = sceneIndex;
+        animator.SetTrigger("FadeOut");
     }
 
-    IEnumerator LoadAsynchronously(int sceneIndex)
+    public void OnFadeComplete()
     {
-        AsyncOperation operation = SceneManager.LoadSceneAsync(sceneIndex);
-
-        while (!operation.isDone)
-        {
-            float progress = Mathf.Clamp01(operation.progress / 0.9f);
-            Debug.Log(progress);
-
-            yield return null;
-        }
+        SceneManager.LoadScene(levelToLoad);
     }
 }

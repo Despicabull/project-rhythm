@@ -6,6 +6,7 @@ public class ResultHandler : MonoBehaviour
     public GameplayHandler gameplayHandler;
     public GameObject resultPanel;
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI accuracyText;
     public TextMeshProUGUI excellentText;
     public TextMeshProUGUI greatText;
     public TextMeshProUGUI goodText;
@@ -16,6 +17,7 @@ public class ResultHandler : MonoBehaviour
     {
         resultPanel.SetActive(true);
         scoreText.text = "Score: " + gameplayHandler.scoreText.text;
+        accuracyText.text = "Accuracy: " + gameplayHandler.accuracyText.text;
         missText.text = "Miss: " + gameplayHandler.missHit;
         badText.text = "Bad: " + gameplayHandler.badHit;
         goodText.text = "Good: " + gameplayHandler.goodHit;

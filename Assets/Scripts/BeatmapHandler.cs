@@ -1,21 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.Networking;
 using UnityEngine.UI;
+
+struct Beatmap
+{
+    public string title;
+
+    // Constructor
+    public Beatmap(string title)
+    {
+        this.title = title;
+    }
+}
 
 public class BeatmapHandler : MonoBehaviour
 {
     public GameObject beatmapPrefab;
     public GameObject content;
-    private string path;
     private readonly List<Beatmap> beatmaps = new List<Beatmap>();
 
     // Start is called before the first frame update
     void Start()
     {
-        path = "Beatmaps/";
         AddBeatmapsToList();
         AddListToView();
     }
@@ -27,18 +37,18 @@ public class BeatmapHandler : MonoBehaviour
             GameObject beatmap = Instantiate(beatmapPrefab, content.transform);
             TextMeshProUGUI beatmapTitle = beatmap.transform.Find("Text_Title (TMP)").GetComponent<TextMeshProUGUI>();
             beatmapTitle.text = beatmaps[i].title;
-            beatmap.GetComponent<Button>().onClick.AddListener(() => LoadBeatmap(beatmapTitle.text));
+            beatmap.GetComponent<Button>().onClick.AddListener(() => StartLoad(beatmapTitle.text));
         }
     }
 
     void AddBeatmapsToList()
     {
-        // Adds every file with an extension of mp3 to beatmaps
-        DirectoryInfo info = new DirectoryInfo(Application.dataPath + "/Resources/" + path);
-        FileInfo[] fileInfos = info.GetFiles("*.mp3");
+        // Adds every file with an extension of wav to beatmaps
+        DirectoryInfo info = new DirectoryInfo(GameSettings.beatmapPath);
+        FileInfo[] fileInfos = info.GetFiles("*.wav");
         foreach (FileInfo fileInfo in fileInfos)
         {
-            string filename = Path.GetFileNameWithoutExtension(fileInfo.FullName);
+            string filename = fileInfo.Name;
             Beatmap beatmap = new Beatmap(filename);
             beatmaps.Add(beatmap);
         }
@@ -46,21 +56,39 @@ public class BeatmapHandler : MonoBehaviour
         beatmaps.Sort((x, y) => x.title.CompareTo(y.title));
     }
 
-    void LoadBeatmap(string filename)
+    void StartLoad(string filename)
     {
-        GameManager gameManager = FindObjectOfType<GameManager>(); ;
-        gameManager.audioClip = Resources.Load<AudioClip>(path + filename);
-        SceneHandler sceneHandler = FindObjectOfType<SceneHandler>();
-        sceneHandler.LoadLevel(GameManager.gameplayID);
+        StartCoroutine(LoadBeatmap(filename));
     }
-}
 
-public class Beatmap
-{
-    public string title;
-
-    public Beatmap(string title)
+    IEnumerator LoadBeatmap(string filename)
     {
-        this.title = title;
+        string musicPath = "file://" + GameSettings.beatmapPath + filename;
+        using (UnityWebRequest webRequest = UnityWebRequestMultimedia.GetAudioClip(musicPath, AudioType.WAV))
+        {
+            ((DownloadHandlerAudioClip)webRequest.downloadHandler).streamAudio = true;
+
+            webRequest.SendWebRequest();
+            while (!webRequest.isNetworkError && webRequest.downloadedBytes < 1024)
+                yield return null;
+
+            if (webRequest.isNetworkError)
+            {
+                Debug.LogError(webRequest.error);
+                yield break;
+            }
+
+
+            // Plays sounds
+            UIHandler uiHandler = FindObjectOfType<UIHandler>();
+            uiHandler.PlayButtonSound();
+            // Loads clip
+            AudioClip clip = ((DownloadHandlerAudioClip)webRequest.downloadHandler).audioClip;
+            GameManager gameManager = FindObjectOfType<GameManager>();
+            gameManager.audioClip = clip;
+            // Loads main scene
+            SceneHandler sceneHandler = FindObjectOfType<SceneHandler>();
+            sceneHandler.LoadLevel(1);
+        }
     }
 }

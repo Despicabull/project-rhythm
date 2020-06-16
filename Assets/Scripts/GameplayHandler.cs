@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 public enum Combo
@@ -18,19 +17,22 @@ public class GameplayHandler : MonoBehaviour
     public int goodHit = 0;
     public int greatHit = 0;
     public int excellentHit = 0;
-    public int currentScore = 0;
     public GameObject blockSpawn;
     public GameObject keyThreshold;
     public GameObject gameplayPanel;
     public KeyPanel keyPanel;
     public ResultHandler resultHandler;
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI accuracyText;
     public TextMeshProUGUI comboText;
     public TextMeshProUGUI hitText;
     private AudioProcessor processor;
     private AudioSource audioSource;
-    private int currentBeat = 0;
+    private int currentScore = 0;
+    private float accuracy = 0;
     private int blocksHit = 0;
+    private int totalBlocks = 0;
+    private readonly int[,] patterns = new int[6, 2] { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 3 } };
 
     // Start is called before the first frame update
     void Start()
@@ -55,15 +57,49 @@ public class GameplayHandler : MonoBehaviour
         }
     }
 
+    public void DisplayCombo(Combo combo)
+    {
+        float accuracyPoint = 0f;
+        switch (combo) 
+        {
+            case Combo.Miss: // Resets the block hit value
+                missHit++;
+                comboText.text = "Miss";
+                ResetHit();
+                break;
+            case Combo.Bad:
+                badHit++;
+                comboText.text = "Bad";
+                accuracyPoint = 0.5f;
+                accuracy += 0.25f;
+                break;
+            case Combo.Good:
+                goodHit++;
+                comboText.text = "Good";
+                accuracyPoint = 1f;
+                accuracy += 0.5f;
+                break;
+            case Combo.Great:
+                greatHit++;
+                comboText.text = "Great";
+                accuracyPoint = 2f;
+                accuracy += 0.75f;
+                break;
+            case Combo.Excellent:
+                excellentHit++;
+                comboText.text = "Excellent";
+                accuracyPoint = 3f;
+                accuracy += 1f;
+                break;
+        };
+        totalBlocks++;
+        SetAccuracy();
+        SetScore(Mathf.RoundToInt(GameSettings.scorePerBlock * GameSettings.scoreMultiplier * accuracyPoint));
+    }
+
     void OnBeat()
     {
-        currentBeat++;
-        if (currentBeat > 2)
-        {
-            int[,] patterns = new int[6, 2] { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 3 } };
-            SpawnBlock(patterns);
-            currentBeat = 0;
-        }
+        SpawnBlock(patterns);
     }
 
     void SpawnBlock(int[,] patterns)
@@ -82,52 +118,28 @@ public class GameplayHandler : MonoBehaviour
         }
     }
 
-    public void DisplayCombo(Combo combo)
-    {
-        switch (combo) 
-        {
-            case Combo.Miss: // Resets the block hit value
-                missHit++;
-                comboText.text = "Miss";
-                ResetHit();
-                break;
-            case Combo.Bad:
-                badHit++;
-                comboText.text = "Bad";
-                break;
-            case Combo.Good:
-                goodHit++;
-                comboText.text = "Good";
-                break;
-            case Combo.Great:
-                greatHit++;
-                comboText.text = "Great";
-                break;
-            case Combo.Excellent:
-                excellentHit++;
-                comboText.text = "Excellent";
-                break;
-        };
-    }
-
-    public void ResetHit()
+    void ResetHit()
     {
         blocksHit = 0;
-        hitText.text = blocksHit.ToString();
+        hitText.text = "";
     }
 
-    public void IncreaseHit()
+    void IncreaseHit()
     {
         blocksHit++;
         hitText.text = blocksHit.ToString();
     }
 
-    public void IncreaseScore(int value)
+    void SetScore(int value)
     {
         currentScore += value;
         scoreText.text = currentScore.ToString("D7");
         IncreaseHit();
     }
 
-    
+    void SetAccuracy()
+    {
+        // accuracy = (accuracy / totalBlocks * 100f)
+        accuracyText.text = (accuracy / totalBlocks * 100f).ToString("0.00") + "%";
+    }
 }
