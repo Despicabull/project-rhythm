@@ -12,27 +12,18 @@ public enum Combo
 
 public class GameplayHandler : MonoBehaviour
 {
-    public int missHit = 0;
-    public int badHit = 0;
-    public int goodHit = 0;
-    public int greatHit = 0;
-    public int excellentHit = 0;
+    private bool gamePaused = false;
     public GameObject blockSpawn;
     public GameObject keyThreshold;
     public GameObject gameplayPanel;
+    public GameObject pauseHandler;
     public KeyPanel keyPanel;
-    public ResultHandler resultHandler;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI accuracyText;
     public TextMeshProUGUI comboText;
     public TextMeshProUGUI hitText;
     private AudioProcessor processor;
     private AudioSource audioSource;
-    private int currentScore = 0;
-    private float accuracy = 0;
-    private int blocksHit = 0;
-    private int totalBlocks = 0;
-    private readonly int[,] patterns = new int[6, 2] { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 3 } };
 
     // Start is called before the first frame update
     void Start()
@@ -52,94 +43,121 @@ public class GameplayHandler : MonoBehaviour
     {
         if (!audioSource.isPlaying)
         {
-            gameplayPanel.SetActive(false);
-            resultHandler.CalculateResult();
+            // Loads result scene
+            SceneHandler sceneHandler = FindObjectOfType<SceneHandler>();
+            sceneHandler.LoadLevel(2);
         }
+        KeyInput();
     }
 
     public void DisplayCombo(Combo combo)
     {
-        float accuracyPoint = 0f;
+        float accuracyPoint;
         switch (combo) 
         {
             case Combo.Miss: // Resets the block hit value
-                missHit++;
+                GameResult.missHit++;
                 comboText.text = "Miss";
                 ResetHit();
                 break;
             case Combo.Bad:
-                badHit++;
+                GameResult.badHit++;
                 comboText.text = "Bad";
                 accuracyPoint = 0.5f;
-                accuracy += 0.25f;
+                GameResult.accuracy += 0.25f;
+                SetScore(Mathf.RoundToInt(GameSettings.scorePerBlock * GameSettings.scoreMultiplier * accuracyPoint));
                 break;
             case Combo.Good:
-                goodHit++;
+                GameResult.goodHit++;
                 comboText.text = "Good";
                 accuracyPoint = 1f;
-                accuracy += 0.5f;
+                GameResult.accuracy += 0.5f;
+                SetScore(Mathf.RoundToInt(GameSettings.scorePerBlock * GameSettings.scoreMultiplier * accuracyPoint));
                 break;
             case Combo.Great:
-                greatHit++;
+                GameResult.greatHit++;
                 comboText.text = "Great";
                 accuracyPoint = 2f;
-                accuracy += 0.75f;
+                GameResult.accuracy += 0.75f;
+                SetScore(Mathf.RoundToInt(GameSettings.scorePerBlock * GameSettings.scoreMultiplier * accuracyPoint));
                 break;
             case Combo.Excellent:
-                excellentHit++;
+                GameResult.excellentHit++;
                 comboText.text = "Excellent";
                 accuracyPoint = 3f;
-                accuracy += 1f;
+                GameResult.accuracy += 1f;
+                SetScore(Mathf.RoundToInt(GameSettings.scorePerBlock * GameSettings.scoreMultiplier * accuracyPoint));
                 break;
         };
-        totalBlocks++;
+        GameResult.totalBlocks++;
         SetAccuracy();
-        SetScore(Mathf.RoundToInt(GameSettings.scorePerBlock * GameSettings.scoreMultiplier * accuracyPoint));
     }
 
     void OnBeat()
     {
-        SpawnBlock(patterns);
+        SpawnBlock();
     }
 
-    void SpawnBlock(int[,] patterns)
+    void SpawnBlock()
     {
-        int len = patterns.GetLength(1);
-        int r = Random.Range(0, 5);
-        for (int i = 0; i < len; i++)
+        int r = Random.Range(0, 3);
+        GameObject block = ObjectPooler.instance.GetObject();
+        if (block == null) { return; }
+        block.SetActive(true);
+        Vector3 position = new Vector3(keyPanel.keys[r].transform.position.x, blockSpawn.transform.position.y, keyPanel.keys[r].transform.position.z);
+        block.transform.position = position;
+        keyPanel.keys[r].blocks.Add(block);
+    }
+
+    void KeyInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            int x = patterns[r, i];
-            GameObject block = ObjectPooler.instance.GetObject();
-            if (block == null) { return; }
-            block.SetActive(true);
-            Vector3 position = new Vector3(keyPanel.keys[x].transform.position.x, blockSpawn.transform.position.y, keyPanel.keys[x].transform.position.z);
-            block.transform.position = position;
-            keyPanel.keys[x].blocks.Add(block);
+            if (!gamePaused)
+            {
+                Pause();
+            }
+            else
+            {
+                Resume();
+            }
         }
+    }
+
+    void Pause()
+    {
+        Time.timeScale = 0f;
+        gamePaused = true;
+    }
+
+    void Resume()
+    {
+        Time.timeScale = 1f;
+        gamePaused = false;
     }
 
     void ResetHit()
     {
-        blocksHit = 0;
+        GameResult.blocksHit = 0;
         hitText.text = "";
     }
 
     void IncreaseHit()
     {
-        blocksHit++;
-        hitText.text = blocksHit.ToString();
+        GameResult.blocksHit++;
+        hitText.text = GameResult.blocksHit.ToString();
     }
 
     void SetScore(int value)
     {
-        currentScore += value;
-        scoreText.text = currentScore.ToString("D7");
+        GameResult.currentScore += value;
+        scoreText.text = GameResult.currentScore.ToString("D7");
         IncreaseHit();
     }
 
     void SetAccuracy()
     {
         // accuracy = (accuracy / totalBlocks * 100f)
-        accuracyText.text = (accuracy / totalBlocks * 100f).ToString("0.00") + "%";
+        accuracyText.text = (GameResult.accuracy / GameResult.totalBlocks * 100f).ToString("0.00") + "%";
     }
 }

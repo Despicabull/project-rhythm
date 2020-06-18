@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class ResultHandler : MonoBehaviour
 {
-    public GameplayHandler gameplayHandler;
-    public GameObject resultPanel;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI accuracyText;
     public TextMeshProUGUI excellentText;
@@ -13,15 +11,16 @@ public class ResultHandler : MonoBehaviour
     public TextMeshProUGUI badText;
     public TextMeshProUGUI missText;
 
-    public void CalculateResult()
+    // Start is called before the first frame update
+    void Start()
     {
-        resultPanel.SetActive(true);
-        scoreText.text = "Score: " + gameplayHandler.scoreText.text;
-        accuracyText.text = "Accuracy: " + gameplayHandler.accuracyText.text;
-        missText.text = "Miss: " + gameplayHandler.missHit;
-        badText.text = "Bad: " + gameplayHandler.badHit;
-        goodText.text = "Good: " + gameplayHandler.goodHit;
-        greatText.text = "Great: " + gameplayHandler.greatHit;
-        excellentText.text = "Excellent: " + gameplayHandler.excellentHit;
+        // Display results
+        scoreText.text = "Score: " + GameResult.currentScore.ToString();
+        accuracyText.text = "Accuracy: " + GameResult.accuracy.ToString();
+        missText.text = "Miss: " + GameResult.missHit;
+        badText.text = "Bad: " + GameResult.badHit;
+        goodText.text = "Good: " + GameResult.goodHit;
+        greatText.text = "Great: " + GameResult.greatHit;
+        excellentText.text = "Excellent: " + GameResult.excellentHit;
     }
 }

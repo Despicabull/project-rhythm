@@ -22,7 +22,7 @@ public class OptionsHandler : MonoBehaviour
         KeyInput();
     }
 
-    public void KeyInput()
+    void KeyInput()
     {
         if (Input.GetKeyDown(KeyCode.F3))
         {
