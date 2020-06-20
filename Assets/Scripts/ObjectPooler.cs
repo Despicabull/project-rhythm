@@ -1,12 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class ObjectPooler : MonoBehaviour
 {
-    public int poolSize;
     public static ObjectPooler instance;
     public GameObject poolObject;
+    private readonly int poolSize = 50;
 
     private readonly List<GameObject> poolObjects = new List<GameObject>();
 

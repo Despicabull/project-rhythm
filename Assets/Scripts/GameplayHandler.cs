@@ -12,7 +12,6 @@ public enum Combo
 
 public class GameplayHandler : MonoBehaviour
 {
-    private bool gamePaused = false;
     public GameObject blockSpawn;
     public GameObject keyThreshold;
     public GameObject gameplayPanel;
@@ -22,15 +21,19 @@ public class GameplayHandler : MonoBehaviour
     public TextMeshProUGUI accuracyText;
     public TextMeshProUGUI comboText;
     public TextMeshProUGUI hitText;
-    private AudioProcessor processor;
+    public static bool isPaused = false;
+    private BeatmapProcessor processor;
     private AudioSource audioSource;
+    private float gameFinishTimer = 5f;
+    private float hitComboDisplayTime = 0f;
 
     // Start is called before the first frame update
     void Start()
     {
-        processor = GetComponent<AudioProcessor>();
+        processor = GetComponent<BeatmapProcessor>();
         processor.onBeat.AddListener(OnBeat);
-
+        // Resets the game result
+        GameResult.Reset();
         // Loads clip from the GameManager
         GameManager gameManager = FindObjectOfType<GameManager>();
         audioSource = GetComponent<AudioSource>();
@@ -41,11 +44,20 @@ public class GameplayHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!audioSource.isPlaying)
+        if (!isPaused)
         {
-            // Loads result scene
-            SceneHandler sceneHandler = FindObjectOfType<SceneHandler>();
-            sceneHandler.LoadLevel(2);
+            if (!audioSource.isPlaying) gameFinishTimer -= Time.deltaTime;
+
+            if (gameFinishTimer <= 0) FinishGame();
+
+            if (hitComboDisplayTime > 0) hitComboDisplayTime -= Time.deltaTime;
+
+            if (hitComboDisplayTime <= 0 && (comboText.text != "" || hitText.text != ""))
+            {
+                comboText.text = "";
+                hitText.text = "";
+                hitComboDisplayTime = 0f;
+            }
         }
         KeyInput();
     }
@@ -65,32 +77,47 @@ public class GameplayHandler : MonoBehaviour
                 comboText.text = "Bad";
                 accuracyPoint = 0.5f;
                 GameResult.accuracy += 0.25f;
-                SetScore(Mathf.RoundToInt(GameSettings.scorePerBlock * GameSettings.scoreMultiplier * accuracyPoint));
+                SetScore(Mathf.RoundToInt(GameSetting.scorePerBlock * GameSetting.scoreMultiplier * accuracyPoint));
                 break;
             case Combo.Good:
                 GameResult.goodHit++;
                 comboText.text = "Good";
                 accuracyPoint = 1f;
                 GameResult.accuracy += 0.5f;
-                SetScore(Mathf.RoundToInt(GameSettings.scorePerBlock * GameSettings.scoreMultiplier * accuracyPoint));
+                SetScore(Mathf.RoundToInt(GameSetting.scorePerBlock * GameSetting.scoreMultiplier * accuracyPoint));
                 break;
             case Combo.Great:
                 GameResult.greatHit++;
                 comboText.text = "Great";
                 accuracyPoint = 2f;
                 GameResult.accuracy += 0.75f;
-                SetScore(Mathf.RoundToInt(GameSettings.scorePerBlock * GameSettings.scoreMultiplier * accuracyPoint));
+                SetScore(Mathf.RoundToInt(GameSetting.scorePerBlock * GameSetting.scoreMultiplier * accuracyPoint));
                 break;
             case Combo.Excellent:
                 GameResult.excellentHit++;
                 comboText.text = "Excellent";
                 accuracyPoint = 3f;
                 GameResult.accuracy += 1f;
-                SetScore(Mathf.RoundToInt(GameSettings.scorePerBlock * GameSettings.scoreMultiplier * accuracyPoint));
+                SetScore(Mathf.RoundToInt(GameSetting.scorePerBlock * GameSetting.scoreMultiplier * accuracyPoint));
                 break;
         };
+        hitComboDisplayTime = 4f; // Resets the timer which the hit and combo text is being displayed
         GameResult.totalBlocks++;
         SetAccuracy();
+    }
+
+    public void Retry()
+    {
+        // Loads main scene
+        SceneHandler sceneHandler = FindObjectOfType<SceneHandler>();
+        sceneHandler.LoadLevel(1);
+    }
+
+    public void Back()
+    {
+        // Loads to menu scene
+        SceneHandler sceneHandler = FindObjectOfType<SceneHandler>();
+        sceneHandler.LoadLevel(0);
     }
 
     void OnBeat()
@@ -100,7 +127,7 @@ public class GameplayHandler : MonoBehaviour
 
     void SpawnBlock()
     {
-        int r = Random.Range(0, 3);
+        int r = Random.Range(0, 4);
         GameObject block = ObjectPooler.instance.GetObject();
         if (block == null) { return; }
         block.SetActive(true);
@@ -109,31 +136,34 @@ public class GameplayHandler : MonoBehaviour
         keyPanel.keys[r].blocks.Add(block);
     }
 
-    void KeyInput()
+    void FinishGame()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (!gamePaused)
-            {
-                Pause();
-            }
-            else
-            {
-                Resume();
-            }
-        }
+        // Loads result scene
+        SceneHandler sceneHandler = FindObjectOfType<SceneHandler>();
+        sceneHandler.LoadLevel(2);
     }
 
     void Pause()
     {
-        Time.timeScale = 0f;
-        gamePaused = true;
+        audioSource.Pause();
+        isPaused = true;
+        pauseHandler.SetActive(true);
     }
 
     void Resume()
     {
-        Time.timeScale = 1f;
-        gamePaused = false;
+        audioSource.UnPause();
+        isPaused = false;
+        pauseHandler.SetActive(false);
+    }
+
+    void KeyInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (!isPaused) Pause();
+            else Resume();
+        }
     }
 
     void ResetHit()

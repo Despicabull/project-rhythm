@@ -4,7 +4,6 @@ using UnityEngine.SceneManagement;
 public class SceneHandler : MonoBehaviour
 {
     private Animator animator;
-
     private int levelToLoad;
 
     // Start is called before the first frame update

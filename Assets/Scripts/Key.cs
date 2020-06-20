@@ -27,19 +27,23 @@ public class Key : MonoBehaviour
             float keyThresholdHeight = gameplayHandler.keyThreshold.GetComponent<RectTransform>().rect.height;
             if (blocks[0].transform.position.y <= gameplayHandler.keyThreshold.transform.position.y + (keyThresholdHeight / 2)) // Indicates that the block is within the threshold
             {
-                if (blocks[0].transform.position.y >= gameplayHandler.keyThreshold.transform.position.y + (keyThresholdHeight / 4)) // Bad
+                if (blocks[0].transform.position.y >= gameplayHandler.keyThreshold.transform.position.y + (5 * keyThresholdHeight / 8) ||
+                    blocks[0].transform.position.y <= gameplayHandler.keyThreshold.transform.position.y - (5 * keyThresholdHeight / 8))
                 {
                     gameplayHandler.DisplayCombo(Combo.Bad);
                 }
-                else if (blocks[0].transform.position.y >= gameplayHandler.keyThreshold.transform.position.y) // Good
+                else if (blocks[0].transform.position.y >= gameplayHandler.keyThreshold.transform.position.y + (3 * keyThresholdHeight / 8) ||
+                    blocks[0].transform.position.y <= gameplayHandler.keyThreshold.transform.position.y - (3 * keyThresholdHeight / 8))
                 {
                     gameplayHandler.DisplayCombo(Combo.Good);
                 }
-                else if (blocks[0].transform.position.y >= gameplayHandler.keyThreshold.transform.position.y - (keyThresholdHeight / 4)) // Great
+                else if (blocks[0].transform.position.y >= gameplayHandler.keyThreshold.transform.position.y + (1 * keyThresholdHeight / 8) ||
+                    blocks[0].transform.position.y <= gameplayHandler.keyThreshold.transform.position.y - (1 * keyThresholdHeight / 8))
                 {
                     gameplayHandler.DisplayCombo(Combo.Great);
                 }
-                else if (blocks[0].transform.position.y >= gameplayHandler.keyThreshold.transform.position.y - (keyThresholdHeight / 2)) // Excellent
+                else if (blocks[0].transform.position.y >= gameplayHandler.keyThreshold.transform.position.y + (-1 * keyThresholdHeight / 8) ||
+                    blocks[0].transform.position.y <= gameplayHandler.keyThreshold.transform.position.y - (-1 * keyThresholdHeight / 8))
                 {
                     gameplayHandler.DisplayCombo(Combo.Excellent);
                 }

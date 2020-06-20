@@ -15,19 +15,22 @@ public class KeyClickHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        CheckKeyboardInput();
+        KeyInput();
     }
 
-    void CheckKeyboardInput()
+    void KeyInput()
     {
-        if (Input.GetKeyDown(keyCode))
+        if (!GameplayHandler.isPaused)
         {
-            FadeToColor(button.colors.pressedColor);
-            button.onClick.Invoke();
-        }
-        else if (Input.GetKeyUp(keyCode))
-        {
-            FadeToColor(button.colors.normalColor);
+            if (Input.GetKeyDown(keyCode))
+            {
+                FadeToColor(button.colors.pressedColor);
+                button.onClick.Invoke();
+            }
+            else if (Input.GetKeyUp(keyCode))
+            {
+                FadeToColor(button.colors.normalColor);
+            }
         }
     }
 
