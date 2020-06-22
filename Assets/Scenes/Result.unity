@@ -2522,6 +2522,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c6a01175fdd6464ca4c0b30848d2312, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  background: {fileID: 187966574}
   scoreText: {fileID: 1933216626}
   accuracyText: {fileID: 1500814045}
   excellentText: {fileID: 1504635015}

@@ -7,7 +7,7 @@ public class BlocksMovement : MonoBehaviour
     {
         if (!GameplayHandler.isPaused)
         {
-            transform.Translate(new Vector3(0f, -1 * GameSetting.speed, 0f));
+            transform.Translate(GameSetting.speedMultiplier * GameSetting.speed * Vector3.down * Time.deltaTime);
         }
     }
 }

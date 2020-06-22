@@ -152,13 +152,24 @@ public class BeatmapHandler : MonoBehaviour
         DirectoryInfo info = new DirectoryInfo(folderPath);
         FileInfo[] musicInfos = info.GetFiles("*.wav");
         FileInfo[] txtInfos = info.GetFiles("*.txt");
+        GameManager gameManager = FindObjectOfType<GameManager>();
         // Checks if there is a .wav file and .txt file
-        if (musicInfos.Length > 0 && txtInfos.Length > 0)
+        if (txtInfos.Length > 0)
+        {
+            // Finds the first txt file
+            gameManager.txtPath = folderPath + txtInfos[0].Name;
+        }
+        else
+        {
+            // Creates txt file if txt doesn't exists
+            StreamWriter writer = new StreamWriter(folderPath + "lyrics.txt");
+            gameManager.txtPath = folderPath + "lyrics.txt";
+            writer.Close();
+        }
+        if (musicInfos.Length > 0)
         {
             // Finds the first music file
             string musicPath = "file://" + folderPath + musicInfos[0].Name;
-            // Finds the first txt file
-            string txtPath = folderPath + txtInfos[0].Name;
             using (UnityWebRequest webRequest = UnityWebRequestMultimedia.GetAudioClip(musicPath, AudioType.WAV))
             {
                 ((DownloadHandlerAudioClip)webRequest.downloadHandler).streamAudio = true;
@@ -178,10 +189,8 @@ public class BeatmapHandler : MonoBehaviour
                 uiHandler.PlayButtonSound();
                 // Loads clip
                 AudioClip clip = ((DownloadHandlerAudioClip)webRequest.downloadHandler).audioClip;
-                GameManager gameManager = FindObjectOfType<GameManager>();
                 gameManager.audioClip = clip;
                 gameManager.folderPath = folderPath;
-                gameManager.txtPath = txtPath;
                 // Loads main scene
                 SceneHandler sceneHandler = FindObjectOfType<SceneHandler>();
                 sceneHandler.LoadLevel(1);

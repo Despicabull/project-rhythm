@@ -31,23 +31,26 @@ public class Key : MonoBehaviour
                     blocks[0].transform.position.y <= gameplayHandler.keyThreshold.transform.position.y - (5 * keyThresholdHeight / 8))
                 {
                     gameplayHandler.DisplayCombo(Combo.Bad);
+                    ResetState();
                 }
                 else if (blocks[0].transform.position.y >= gameplayHandler.keyThreshold.transform.position.y + (3 * keyThresholdHeight / 8) ||
                     blocks[0].transform.position.y <= gameplayHandler.keyThreshold.transform.position.y - (3 * keyThresholdHeight / 8))
                 {
                     gameplayHandler.DisplayCombo(Combo.Good);
+                    ResetState();
                 }
                 else if (blocks[0].transform.position.y >= gameplayHandler.keyThreshold.transform.position.y + (1 * keyThresholdHeight / 8) ||
                     blocks[0].transform.position.y <= gameplayHandler.keyThreshold.transform.position.y - (1 * keyThresholdHeight / 8))
                 {
                     gameplayHandler.DisplayCombo(Combo.Great);
+                    ResetState();
                 }
                 else if (blocks[0].transform.position.y >= gameplayHandler.keyThreshold.transform.position.y + (-1 * keyThresholdHeight / 8) ||
                     blocks[0].transform.position.y <= gameplayHandler.keyThreshold.transform.position.y - (-1 * keyThresholdHeight / 8))
                 {
                     gameplayHandler.DisplayCombo(Combo.Excellent);
+                    ResetState();
                 }
-                ResetState();
             }
         }
     }

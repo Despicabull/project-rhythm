@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 public class KeyClickHandler : MonoBehaviour
 {
+    public Graphic hitEffect;
     public KeyCode keyCode;
     private Button button;
 
@@ -25,11 +26,13 @@ public class KeyClickHandler : MonoBehaviour
             if (Input.GetKeyDown(keyCode))
             {
                 FadeToColor(button.colors.pressedColor);
+                FadeToAlpha(200f);
                 button.onClick.Invoke();
             }
             else if (Input.GetKeyUp(keyCode))
             {
                 FadeToColor(button.colors.normalColor);
+                FadeToAlpha(0f);
             }
         }
     }
@@ -38,5 +41,10 @@ public class KeyClickHandler : MonoBehaviour
     {
         Graphic graphic = GetComponent<Graphic>();
         graphic.CrossFadeColor(color, button.colors.fadeDuration, true, true);
+    }
+
+    void FadeToAlpha(float alpha)
+    {
+        hitEffect.CrossFadeAlpha(alpha, button.colors.fadeDuration, true);
     }
 }

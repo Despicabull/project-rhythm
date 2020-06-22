@@ -1,17 +1,20 @@
 ﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     public AudioClip audioClip;
+    public Image background;
+    public Sprite[] images;
+    public int backgroundIndex = 0;
     public string folderPath;
     public string txtPath;
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
+        Application.targetFrameRate = -1;
         // Creates folder which holds all beatmaps if specified folder doesn't exist
         if (!Directory.Exists(GameSetting.beatmapPath))
         {
@@ -21,6 +24,14 @@ public class GameManager : MonoBehaviour
         {
             Directory.CreateDirectory(GameSetting.configPath);
         }
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        // Changes background
+        backgroundIndex = Random.Range(0, images.Length);
+        background.sprite = images[backgroundIndex];
         DontDestroyOnLoad(this);
     }
 
@@ -31,7 +42,8 @@ public class GameManager : MonoBehaviour
         PlayerConfig playerConfig = new PlayerConfig
         {
             speed = GameSetting.speed,
-            volume = GameSetting.volume
+            volume = GameSetting.volume,
+            difficultyIndex = GameSetting.difficultyIndex
         };
         bf.Serialize(file, playerConfig);
         file.Close();
@@ -47,6 +59,7 @@ public class GameManager : MonoBehaviour
             file.Close();
             GameSetting.speed = playerConfig.speed;
             GameSetting.volume = playerConfig.volume;
+            GameSetting.difficultyIndex = playerConfig.difficultyIndex;
         }
         else
         {

@@ -15,12 +15,12 @@ public class UIHandler : MonoBehaviour
 
     public void PlayButtonSound()
     {
-        audioSourceButton.Play();
+        audioSourceButton.PlayOneShot(audioSourceButton.clip);
     }
 
     public void PlayKeyButtonSound()
     {
-        audioSourceKeyButton.Play();
+        audioSourceKeyButton.PlayOneShot(audioSourceKeyButton.clip);
     }
 
     public void MenuButtonControl()

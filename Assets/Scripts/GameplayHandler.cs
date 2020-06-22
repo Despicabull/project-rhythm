@@ -1,5 +1,6 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum Combo
 {
@@ -16,6 +17,8 @@ public class GameplayHandler : MonoBehaviour
     public GameObject keyThreshold;
     public GameObject gameplayPanel;
     public GameObject pauseHandler;
+    public Image outerTimerImage;
+    public Image background;
     public KeyPanel keyPanel;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI accuracyText;
@@ -30,12 +33,13 @@ public class GameplayHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        outerTimerImage.fillAmount = 0f;
+        GameManager gameManager = FindObjectOfType<GameManager>();
+        background.sprite = gameManager.images[gameManager.backgroundIndex];
         processor = GetComponent<BeatmapProcessor>();
         processor.onBeat.AddListener(OnBeat);
         // Resets the game result
         GameResult.Reset();
-        // Loads clip from the GameManager
-        GameManager gameManager = FindObjectOfType<GameManager>();
         audioSource = GetComponent<AudioSource>();
         audioSource.clip = gameManager.audioClip;
         audioSource.Play();
@@ -46,8 +50,7 @@ public class GameplayHandler : MonoBehaviour
     {
         if (!isPaused)
         {
-            if (!audioSource.isPlaying) gameFinishTimer -= Time.deltaTime;
-
+            if (!audioSource.isPlaying && gameFinishTimer > 0) gameFinishTimer -= Time.deltaTime;
             if (gameFinishTimer <= 0) FinishGame();
 
             if (hitComboDisplayTime > 0) hitComboDisplayTime -= Time.deltaTime;
@@ -57,6 +60,11 @@ public class GameplayHandler : MonoBehaviour
                 comboText.text = "";
                 hitText.text = "";
                 hitComboDisplayTime = 0f;
+            }
+            // Updates timer
+            if (outerTimerImage.fillAmount < 1f)
+            {
+                outerTimerImage.fillAmount = Mathf.Clamp(audioSource.time / audioSource.clip.length, 0f, 1f);
             }
         }
         KeyInput();
@@ -108,6 +116,7 @@ public class GameplayHandler : MonoBehaviour
 
     public void Retry()
     {
+        isPaused = false;
         // Loads main scene
         SceneHandler sceneHandler = FindObjectOfType<SceneHandler>();
         sceneHandler.LoadLevel(1);
@@ -115,6 +124,7 @@ public class GameplayHandler : MonoBehaviour
 
     public void Back()
     {
+        isPaused = false;
         // Loads to menu scene
         SceneHandler sceneHandler = FindObjectOfType<SceneHandler>();
         sceneHandler.LoadLevel(0);
@@ -122,18 +132,28 @@ public class GameplayHandler : MonoBehaviour
 
     void OnBeat()
     {
-        SpawnBlock();
+        int r = Random.Range(1, 3);
+        SpawnBlock(r);
     }
 
-    void SpawnBlock()
+    void SpawnBlock(int count)
     {
-        int r = Random.Range(0, 4);
-        GameObject block = ObjectPooler.instance.GetObject();
-        if (block == null) { return; }
-        block.SetActive(true);
-        Vector3 position = new Vector3(keyPanel.keys[r].transform.position.x, blockSpawn.transform.position.y, keyPanel.keys[r].transform.position.z);
-        block.transform.position = position;
-        keyPanel.keys[r].blocks.Add(block);
+        int temp = -1;
+        for (int i = 0; i < count; i++)
+        {
+            int r = Random.Range(0, 4);
+            while (temp == r)
+            {
+                r = Random.Range(0, 4);
+            }
+            GameObject block = ObjectPooler.instance.GetObject();
+            if (block == null) return;
+            block.SetActive(true);
+            Vector3 position = new Vector3(keyPanel.keys[r].transform.position.x, blockSpawn.transform.position.y, keyPanel.keys[r].transform.position.z);
+            block.transform.position = position;
+            keyPanel.keys[r].blocks.Add(block);
+            temp = r;
+        }
     }
 
     void FinishGame()
