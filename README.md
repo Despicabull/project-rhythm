@@ -1,2 +1,2 @@
 # project-osu
- Unity Osu Game
+ Unity osu! Game
