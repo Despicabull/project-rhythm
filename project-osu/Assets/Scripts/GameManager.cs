@@ -1,12 +1,10 @@
 ﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     public AudioClip audioClip;
-    public Sprite[] images;
     public int backgroundIndex = 0;
     public string folderPath;
     public string txtPath;
