@@ -1,10 +1,8 @@
 ﻿using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ResultHandler : MonoBehaviour
 {
-    public Image background;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI accuracyText;
     public TextMeshProUGUI excellentText;
@@ -18,7 +16,6 @@ public class ResultHandler : MonoBehaviour
     void Start()
     {
         GameManager gameManager = FindObjectOfType<GameManager>();
-        background.sprite = gameManager.images[gameManager.backgroundIndex];
         // Displays results
         scoreText.text = "Score: " + GameResult.currentScore.ToString("D7");
         accuracyText.text = "Accuracy: " + CalculateAccuracy().ToString("0.00") + "%";

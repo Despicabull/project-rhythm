@@ -18,7 +18,6 @@ public class GameplayHandler : MonoBehaviour
     public GameObject gameplayPanel;
     public GameObject pauseHandler;
     public Image outerTimerImage;
-    public Image background;
     public KeyPanel keyPanel;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI accuracyText;
@@ -35,7 +34,6 @@ public class GameplayHandler : MonoBehaviour
     {
         outerTimerImage.fillAmount = 0f;
         GameManager gameManager = FindObjectOfType<GameManager>();
-        background.sprite = gameManager.images[gameManager.backgroundIndex];
         processor = GetComponent<BeatmapProcessor>();
         processor.onBeat.AddListener(OnBeat);
         // Resets the game result

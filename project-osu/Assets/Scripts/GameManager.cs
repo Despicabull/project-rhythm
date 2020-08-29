@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public AudioClip audioClip;
-    public Image background;
     public Sprite[] images;
     public int backgroundIndex = 0;
     public string folderPath;
@@ -29,16 +28,13 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Changes background
-        backgroundIndex = Random.Range(0, images.Length);
-        background.sprite = images[backgroundIndex];
         DontDestroyOnLoad(this);
     }
 
     public void SaveSettings()
     {
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Create(GameSetting.configPath + "config.cfg");
+        FileStream file = File.Create(GameSetting.configPath + "config.ini");
         PlayerConfig playerConfig = new PlayerConfig
         {
             speed = GameSetting.speed,
@@ -51,10 +47,10 @@ public class GameManager : MonoBehaviour
 
     public void LoadSettings()
     {
-        if (File.Exists(GameSetting.configPath + "config.cfg")) // If config.dat exists then load otherwise creates config.dat
+        if (File.Exists(GameSetting.configPath + "config.ini")) // If config.ini exists then load otherwise creates config.dat
         {
             BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Open(GameSetting.configPath + "config.cfg", FileMode.Open);
+            FileStream file = File.Open(GameSetting.configPath + "config.ini", FileMode.Open);
             PlayerConfig playerConfig = (PlayerConfig)bf.Deserialize(file);
             file.Close();
             GameSetting.speed = playerConfig.speed;
