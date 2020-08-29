@@ -5,7 +5,6 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public AudioClip audioClip;
-    public int backgroundIndex = 0;
     public string folderPath;
     public string txtPath;
 
