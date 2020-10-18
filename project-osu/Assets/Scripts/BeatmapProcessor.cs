@@ -106,5 +106,5 @@ public class BeatmapProcessor : MonoBehaviour
 [Serializable]
 public class OnBeatEvent : UnityEvent
 {
-
+    // Triggers an event
 }

@@ -140,6 +140,7 @@ public class GameplayHandler : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             int r = Random.Range(0, 4);
+            // Spawns a number of blocks but in a way that no blocks are in a same key (no duplicate on 1 key)
             while (temp == r)
             {
                 r = Random.Range(0, 4);
