@@ -1,2 +1,2 @@
-# project-osu
- Unity osu! Game
+# project-rhythm
+Rhythm Game
